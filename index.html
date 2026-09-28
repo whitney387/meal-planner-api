@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Meal Planner</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #fdfbf7 0%, #f4ebe1 100%);
+            color: #2c2c2c;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #b33939;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
+        }
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            background-color: #e0dcd0;
+            color: #444;
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active {
+            background-color: #d35400;
+            color: white;
+        }
+        .section-panel {
+            display: none;
+        }
+        .section-panel.active {
+            display: block;
+        }
+        .search-box {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 16px;
+            border: 2px solid #e0dcd0;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        input:focus {
+            border-color: #d35400;
+        }
+        .primary-btn {
+            padding: 12px 20px;
+            background-color: #d35400;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .primary-btn:hover {
+            background-color: #ba4a00;
+            transform: scale(1.01);
+        }
+        .secondary-btn {
+            background-color: #27ae60;
+        }
+        .secondary-btn:hover {
+            background-color: #219653;
+        }
+        .recipe-card {
+            background: #ffffff;
+            padding: 20px;
+            margin-top: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-left: 5px solid #d35400;
+        }
+        .recipe-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            background: #fffdf9;
+        }
+        .recipe-card img {
+            width: 90px;
+            height: 90px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        .recipe-info {
+            flex: 1;
+        }
+        .recipe-info h3 {
+            margin: 0 0 8px 0;
+            color: #2c2c2c;
+            font-size: 1.25rem;
+        }
+        .recipe-info p {
+            margin: 0 0 12px 0;
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .card-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .ingredient-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+        .ingredient-btn:hover {
+            background-color: #d68910;
+        }
+        .instruction-btn {
+            background-color: #27ae60;
+            color: white;
+        }
+        .instruction-btn:hover {
+            background-color: #219653;
+        }
+
+        #recipe-detail {
+            background: #ffffff;
+            padding: 30px;
+            margin-top: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #recipe-detail img {
+            width: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .back-btn {
+            background-color: #7f8c8d;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .back-btn:hover {
+            background-color: #616a6b;
+        }
+        ul.ingredient-list {
+            background: #fdfaf6;
+            padding: 20px 20px 20px 40px;
+            border-radius: 8px;
+            border: 1px solid #ebdccb;
+            margin-bottom: 20px;
+        }
+        ul.ingredient-list li {
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Smart Meal Planner</h1>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('search')">Search Internet Recipes</button>
+        <button class="tab-btn" onclick="switchTab('saved')">My Cloud Saved Recipes</button>
+    </div>
+
+    <!-- TAB 1: Search Internet Recipes Panel -->
+    <div id="panel-search" class="section-panel active">
+        <div class="search-box">
+            <input type="text" id="ingredient-input" placeholder="Type an ingredient (e.g., beef, potato, pasta)..." style="margin-bottom:0;">
+            <button class="primary-btn" onclick="searchRecipes()">Search</button>
+        </div>
+
+        <div id="recipe-container">
+            <p style="text-align: center; color: #7f8c8d; font-size: 1.1rem; margin-top: 40px;">Search for an ingredient to find meals from across the web!</p>
+        </div>
+    </div>
+
+    <!-- TAB 2: Personal Cloud Saved Recipes Panel -->
+    <div id="panel-saved" class="section-panel">
+        <h3 style="color: #2c2c2c; margin-top: 0;">Your Cloud Saved Recipes</h3>
+        <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Recipes you've saved from your searches. Stored securely in the cloud database.</p>
+        <div id="db-recipe-container">
+            <p style="text-align: center; color: #7f8c8d;">Loading your saved recipes...</p>
+        </div>
+    </div>
+
+    <!-- Detailed Internet Recipe View (Hidden by default) -->
+    <div id="recipe-detail">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+            <button class="back-btn" onclick="goBackToSearch()">Back to Search Results</button>
+            <button class="primary-btn secondary-btn" style="padding: 8px 14px; font-size: 0.85rem;" onclick="saveRecipeToCloud()">Save to My Cloud Recipes</button>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <button class="action-btn ingredient-btn" onclick="switchDetailView('ingredients')">View Ingredients</button>
+            <button class="action-btn instruction-btn" onclick="switchDetailView('instructions')">View Instructions</button>
+        </div>
+
+        <h2 id="detail-title" style="color: #b33939; margin-top: 10px;"></h2>
+        <p><strong>Category:</strong> <span id="detail-category"></span> | <strong>Cuisine:</strong> <span id="detail-area"></span></p>
+        <img id="detail-img" src="" alt="">
+        
+        <div id="section-ingredients">
+            <h3 style="color: #d35400;">Ingredients</h3>
+            <ul id="detail-ingredients" class="ingredient-list"></ul>
+        </div>
+
+        <div id="section-instructions" style="display: none;">
+            <h3 style="color: #27ae60;">Instructions</h3>
+            <p id="detail-instructions" style="white-space: pre-line; line-height: 1.7; color: #444;"></p>
+        </div>
+    </div>
+
+    <script>
+        // Generate or retrieve a unique session ID for this browser user
+        let userSessionId = localStorage.getItem('mealPlannerUserSession');
+        if (!userSessionId) {
+            userSessionId = 'user_' + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem('mealPlannerUserSession', userSessionId);
+        }
+
+        const ingredientInput = document.getElementById('ingredient-input');
+        const recipeContainer = document.getElementById('recipe-container');
+        const dbRecipeContainer = document.getElementById('db-recipe-container');
+        const recipeDetail = document.getElementById('recipe-detail');
+        const panelSearch = document.getElementById('panel-search');
+        const panelSaved = document.getElementById('panel-saved');
+
+        let allCurrentRecipes = [];
+        let activeRecipeIndex = null;
+
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(t => t.classList.remove('active'));
+
+            panelSearch.classList.remove('active');
+            panelSaved.classList.remove('active');
+            recipeDetail.style.display = 'none';
+
+            if (tabName === 'search') {
+                panelSearch.classList.add('active');
+                tabs[0].classList.add('active');
+            } else {
+                panelSaved.classList.add('active');
+                tabs[1].classList.add('active');
+                fetchUserCloudRecipes();
+            }
+        }
+
+        async function searchRecipes() {
+            const query = ingredientInput.value.trim();
+            if (!query) {
+                alert('Please type an ingredient first!');
+                return;
+            }
+
+            try {
+                recipeContainer.innerHTML = '<p style="text-align: center; color: #666; margin-top: 40px;">Searching the culinary database...</p>';
+                
+                const response = await fetch(`http://localhost:3000/external-recipes/${query}`);
+                const recipes = await response.json();
+
+                recipeContainer.innerHTML = ''; 
+
+                if (!recipes) {
+                    recipeContainer.innerHTML = `<p style="text-align: center; color: #c0392b; margin-top: 40px;">No recipes found for "${query}". Try another ingredient!</p>`;
+                    return;
+                }
+
+                allCurrentRecipes = recipes;
+
+                recipes.forEach(function(recipe, index) {
+                    const card = document.createElement('div');
+                    card.className = 'recipe-card';
+                    
+                    card.innerHTML = `
+                        <img src="${recipe.strMealThumb}" alt="${recipe.strMeal}">
+                        <div class="recipe-info">
+                            <h3>${recipe.strMeal}</h3>
+                            <p><strong>Category:</strong> ${recipe.strCategory} | <strong>Cuisine:</strong> ${recipe.strArea}</p>
+                            <div class="card-buttons">
+                                <button class="action-btn ingredient-btn" onclick="showDetails(${index}, 'ingredients')">View Ingredients</button>
+                                <button class="action-btn instruction-btn" onclick="showDetails(${index}, 'instructions')">View Instructions</button>
+                            </div>
+                        </div>
+                    `;
+                    recipeContainer.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error('Error fetching recipes:', error);
+                recipeContainer.innerHTML = '<p style="text-align: center; color: #c0392b; margin-top: 40px;">Failed to connect to the backend server.</p>';
+            }
+        }
+
+        function showDetails(index, viewType) {
+            activeRecipeIndex = index;
+            const recipe = allCurrentRecipes[index];
+
+            document.getElementById('detail-title').innerText = recipe.strMeal;
+            document.getElementById('detail-category').innerText = recipe.strCategory;
+            document.getElementById('detail-area').innerText = recipe.strArea;
+            document.getElementById('detail-img').src = recipe.strMealThumb;
+
+            const ingredientListEl = document.getElementById('detail-ingredients');
+            ingredientListEl.innerHTML = '';
+            for (let i = 1; i <= 20; i++) {
+                const ingredient = recipe[`strIngredient${i}`];
+                const measure = recipe[`strMeasure${i}`];
+                if (ingredient && ingredient.trim() !== '') {
+                    const li = document.createElement('li');
+                    li.innerText = `${measure ? measure + ' ' : ''} ${ingredient}`;
+                    ingredientListEl.appendChild(li);
+                }
+            }
+
+            document.getElementById('detail-instructions').innerText = recipe.strInstructions;
+            switchDetailView(viewType);
+
+            panelSearch.style.display = 'none';
+            recipeDetail.style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        function switchDetailView(viewType) {
+            const secIngredients = document.getElementById('section-ingredients');
+            const secInstructions = document.getElementById('section-instructions');
+
+            if (viewType === 'ingredients') {
+                secIngredients.style.display = 'block';
+                secInstructions.style.display = 'none';
+            } else {
+                secIngredients.style.display = 'none';
+                secInstructions.style.display = 'block';
+            }
+        }
+
+        function goBackToSearch() {
+            recipeDetail.style.display = 'none';
+            panelSearch.style.display = 'block';
+        }
+
+        // Save recipe to backend database linked to this user's session ID
+        async function saveRecipeToCloud() {
+            if (activeRecipeIndex === null) return;
+            const recipe = allCurrentRecipes[activeRecipeIndex];
+
+            const payload = {
+                sessionId: userSessionId,
+                recipeName: recipe.strMeal,
+                category: recipe.strCategory || 'General',
+                imageUrl: recipe.strMealThumb
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/saved-recipes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert(`Successfully saved "${recipe.strMeal}" to your personal saved recipes!`);
+                } else {
+                    alert('Failed to save recipe.');
+                }
+            } catch (error) {
+                console.error('Error saving recipe:', error);
+            }
+        }
+
+        // Fetch only this user's saved recipes from MySQL
+        async function fetchUserCloudRecipes() {
+            try {
+                const response = await fetch(`http://localhost:3000/saved-recipes/${userSessionId}`);
+                const recipes = await response.json();
+
+                dbRecipeContainer.innerHTML = '';
+
+                if (recipes.length === 0) {
+                    dbRecipeContainer.innerHTML = '<p style="color: #7f8c8d; text-align: center;">You have not saved any recipes yet. Search the web and save some!</p>';
+                    return;
+                }
+
+                recipes.forEach(recipe => {
+                    const card = document.createElement('div');
+                    card.className = 'recipe-card';
+                    card.innerHTML = `
+                        <img src="${recipe.image_url}" alt="${recipe.recipe_name}">
+                        <div class="recipe-info">
+                            <h3>${recipe.recipe_name}</h3>
+                            <p><strong>Category:</strong> ${recipe.category}</p>
+                            <small style="color: #27af60;">Saved to your cloud profile</small>
+                        </div>
+                    `;
+                    dbRecipeContainer.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error fetching user recipes:', error);
+                dbRecipeContainer.innerHTML = '<p style="color: #c0392b; text-align: center;">Failed to load your saved recipes.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
